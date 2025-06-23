@@ -85,10 +85,10 @@ const Testimonials = () => {
         </div>
 
         {/* Enhanced Additional Social Proof */}
-        <div className="max-w-4xl mx-auto mt-12 sm:mt-16">
+        <div className="max-w-3xl mx-auto mt-12 sm:mt-16">
           <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg text-center">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Join 100+ Successful Graduates</h3>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-300">
                 <div className="text-2xl sm:text-3xl font-bold text-bootcamp-blue mb-2">95%</div>
                 <div className="text-xs sm:text-sm text-gray-600">Completion Rate</div>
@@ -96,10 +96,6 @@ const Testimonials = () => {
               <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-300">
                 <div className="text-2xl sm:text-3xl font-bold text-bootcamp-orange mb-2">4.9/5</div>
                 <div className="text-xs sm:text-sm text-gray-600">Average Rating</div>
-              </div>
-              <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-300">
-                <div className="text-2xl sm:text-3xl font-bold text-bootcamp-blue mb-2">78%</div>
-                <div className="text-xs sm:text-sm text-gray-600">Job Placement</div>
               </div>
               <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-300">
                 <div className="text-2xl sm:text-3xl font-bold text-bootcamp-orange mb-2">100+</div>

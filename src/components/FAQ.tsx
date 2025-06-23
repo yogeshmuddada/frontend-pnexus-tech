@@ -89,8 +89,8 @@ const FAQ = () => {
               Can't find the answer you're looking for? Reach out to Durga directly and get all your doubts cleared.
             </p>
             <div className="space-y-2 bg-white/10 rounded-lg p-4 sm:p-6 backdrop-blur-sm">
-              <p className="font-semibold text-sm sm:text-base">📧 durga.chikkala@email.com</p>
-              <p className="font-semibold text-sm sm:text-base">📱 WhatsApp: +91 98765 43210</p>
+              <p className="font-semibold text-sm sm:text-base">📧 durgachikkaladev@gmail.com</p>
+              <p className="font-semibold text-sm sm:text-base">📱 WhatsApp: +91 6304566534</p>
               <p className="text-xs sm:text-sm opacity-75 mt-3 sm:mt-4">
                 Response time: Within 2 hours during business hours
               </p>

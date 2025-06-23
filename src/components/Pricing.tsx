@@ -44,9 +44,9 @@ const Pricing = () => {
               <h3 className="text-xl font-bold mb-1 sm:text-3xl sm:mb-2">Frontend Pro Bootcamp</h3>
               <p className="text-bootcamp-blue-light mb-3 text-sm sm:text-base sm:mb-4">Complete 30-day program</p>
               <div className="flex items-center justify-center mb-3 sm:mb-4">
-                <span className="text-3xl font-bold sm:text-5xl">₹4,999</span>
+                <span className="text-3xl font-bold sm:text-5xl">₹2,499</span>
                 <div className="ml-3 text-left sm:ml-4">
-                  <div className="line-through text-bootcamp-blue-light text-sm sm:text-base">₹9,999</div>
+                  <div className="line-through text-bootcamp-blue-light text-sm sm:text-base">₹4,999</div>
                   <div className="text-xs sm:text-sm">50% Early Bird</div>
                 </div>
               </div>
@@ -80,7 +80,7 @@ const Pricing = () => {
                     <div className="space-y-2 text-gray-700 text-sm sm:space-y-3 sm:text-base">
                       <div className="flex justify-between">
                         <span>Start Date:</span>
-                        <span className="font-semibold">January 15, 2025</span>
+                        <span className="font-semibold">July 10, 2025</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Duration:</span>
@@ -88,7 +88,7 @@ const Pricing = () => {
                       </div>
                       <div className="flex justify-between">
                         <span>Schedule:</span>
-                        <span className="font-semibold">Mon-Fri, 7-9 PM</span>
+                        <span className="font-semibold">Mon-Sat, 8-9 PM</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Format:</span>
@@ -151,10 +151,9 @@ const Pricing = () => {
         <div className="max-w-2xl mx-auto mt-8 text-center sm:mt-12">
           <h4 className="text-sm font-semibold text-gray-900 mb-3 sm:text-lg sm:mb-4">Multiple Payment Options</h4>
           <div className="flex flex-wrap justify-center items-center gap-3 text-gray-600 text-xs sm:gap-6 sm:text-sm">
-            <span>💳 Credit/Debit Cards</span>
             <span>🏦 UPI</span>
             <span>💰 Net Banking</span>
-            <span>📱 Digital Wallets</span>
+  
           </div>
         </div>
       </div>

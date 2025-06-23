@@ -24,7 +24,7 @@ const Footer = () => {
                   variant="outline" 
                   size="sm"
                   className="bg-transparent border-gray-600 text-gray-300 hover:bg-bootcamp-blue hover:border-bootcamp-blue text-xs sm:text-sm"
-                  onClick={() => window.open('https://linkedin.com/in/durga-chikkala', '_blank')}
+                  onClick={() => window.open('https://linkedin.com/in/durgach', '_blank')}
                 >
                   <ExternalLink className="w-3 sm:w-4 h-3 sm:h-4 mr-2" />
                   LinkedIn
@@ -33,7 +33,7 @@ const Footer = () => {
                   variant="outline" 
                   size="sm"
                   className="bg-transparent border-gray-600 text-gray-300 hover:bg-bootcamp-orange hover:border-bootcamp-orange text-xs sm:text-sm"
-                  onClick={() => window.open('https://github.com/durga-chikkala', '_blank')}
+                  onClick={() => window.open('https://github.com/Durga-chikkala', '_blank')}
                 >
                   <ExternalLink className="w-3 sm:w-4 h-3 sm:h-4 mr-2" />
                   GitHub
@@ -80,10 +80,10 @@ const Footer = () => {
                 <div className="flex items-center">
                   <Mail className="w-4 sm:w-5 h-4 sm:h-5 mr-3 text-bootcamp-orange flex-shrink-0" />
                   <a 
-                    href="mailto:durga.chikkala@email.com" 
+                    href="mailto:durgachikkaladev@gmail.com" 
                     className="hover:text-bootcamp-orange transition-colors text-sm sm:text-base break-all"
                   >
-                    durga.chikkala@email.com
+                    durgachikkaladev@gmail.com
                   </a>
                 </div>
                 <div className="bg-gray-800 rounded-lg p-3 sm:p-4 mt-4">
@@ -94,7 +94,7 @@ const Footer = () => {
                   <Button 
                     size="sm"
                     className="bg-bootcamp-orange hover:bg-bootcamp-orange/90 text-white w-full text-xs sm:text-sm"
-                    onClick={() => window.open('mailto:durga.chikkala@email.com?subject=Frontend Bootcamp Inquiry', '_blank')}
+                    onClick={() => window.open('mailto:durgachikkaladev@gmail.com?subject=Frontend Bootcamp Inquiry', '_blank')}
                   >
                     Send Message
                   </Button>
@@ -113,7 +113,7 @@ const Footer = () => {
               <Heart className="w-3 sm:w-4 h-3 sm:h-4 mx-2 text-red-500 fill-current" />
               <span>by</span>
               <a 
-                href="https://linkedin.com/in/durga-chikkala" 
+                href="https://linkedin.com/in/durgach" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="ml-1 text-bootcamp-orange hover:text-bootcamp-orange/80 font-semibold transition-colors"

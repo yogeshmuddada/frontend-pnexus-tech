@@ -43,12 +43,12 @@ const AboutMentor = () => {
                     </div>
                     
                     <h3 className="text-xl font-bold text-white mb-1 sm:text-2xl sm:mb-2 lg:text-3xl lg:mb-3">Durga Chikkala</h3>
-                    <p className="text-bootcamp-blue-light text-sm mb-1 sm:text-base sm:mb-2 lg:text-lg lg:mb-3">Senior Frontend Engineer</p>
-                    <p className="text-white/80 text-xs mb-4 sm:text-sm sm:mb-6 lg:text-base lg:mb-8">React & JavaScript Expert</p>
+                    <p className="text-bootcamp-blue-light text-sm mb-1 sm:text-base sm:mb-2 lg:text-lg lg:mb-3">Software Development Engineer 2</p>
+                    <p className="text-white/80 text-xs mb-4 sm:text-sm sm:mb-6 lg:text-base lg:mb-8">Full Stack Developer</p>
                     
                     <Button 
                       className="bg-bootcamp-orange hover:bg-bootcamp-orange/90 text-white text-xs py-2 px-4 sm:text-sm sm:py-3 sm:px-6 lg:text-base lg:py-3 lg:px-8 shadow-2xl hover:shadow-bootcamp-orange/25 transition-all duration-300 transform hover:scale-105 rounded-full"
-                      onClick={() => window.open('https://linkedin.com/in/durga-chikkala', '_blank')}
+                      onClick={() => window.open('https://linkedin.com/in/durgach', '_blank')}
                     >
                       <ExternalLink className="w-3 h-3 mr-1 sm:w-4 sm:h-4 sm:mr-2 lg:w-5 lg:h-5" />
                       Connect on LinkedIn
@@ -65,7 +65,7 @@ const AboutMentor = () => {
                         Why Learn from Durga?
                       </h4>
                       <p className="text-sm text-gray-600 leading-relaxed sm:text-base lg:text-lg lg:leading-relaxed">
-                        With over <strong className="text-bootcamp-blue">6+ years</strong> of hands-on experience in frontend development, 
+                        With over <strong className="text-bootcamp-blue">3+ years</strong> of hands-on experience in frontend development and backend development, 
                         Durga has built scalable applications used by thousands of users. His passion for 
                         teaching and mentoring has helped <strong className="text-bootcamp-orange">100+ developers</strong> kickstart their careers.
                       </p>
@@ -75,7 +75,7 @@ const AboutMentor = () => {
                     <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-6">
                       <div className="bg-gradient-to-br from-bootcamp-blue/5 to-bootcamp-blue/10 rounded-xl p-3 text-center hover:from-bootcamp-blue/10 hover:to-bootcamp-blue/15 transition-all duration-300 transform hover:scale-105 border border-bootcamp-blue/10 sm:p-4 lg:p-6">
                         <Briefcase className="w-5 h-5 text-bootcamp-blue mx-auto mb-1 sm:w-6 sm:h-6 sm:mb-2 lg:w-8 lg:h-8 lg:mb-3" />
-                        <div className="text-lg font-bold text-bootcamp-blue sm:text-xl lg:text-2xl">6+ Years</div>
+                        <div className="text-lg font-bold text-bootcamp-blue sm:text-xl lg:text-2xl">3+ Years</div>
                         <div className="text-xs text-gray-600 sm:text-sm lg:text-base">Industry Experience</div>
                       </div>
                       <div className="bg-gradient-to-br from-bootcamp-orange/5 to-bootcamp-orange/10 rounded-xl p-3 text-center hover:from-bootcamp-orange/10 hover:to-bootcamp-orange/15 transition-all duration-300 transform hover:scale-105 border border-bootcamp-orange/10 sm:p-4 lg:p-6">
@@ -91,7 +91,7 @@ const AboutMentor = () => {
                       <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 text-center hover:from-purple-100 hover:to-purple-150 transition-all duration-300 transform hover:scale-105 border border-purple-200 sm:p-4 lg:p-6">
                         <Award className="w-5 h-5 text-purple-600 mx-auto mb-1 sm:w-6 sm:h-6 sm:mb-2 lg:w-8 lg:h-8 lg:mb-3" />
                         <div className="text-lg font-bold text-purple-600 sm:text-xl lg:text-2xl">Expert</div>
-                        <div className="text-xs text-gray-600 sm:text-sm lg:text-base">React & JavaScript</div>
+                        <div className="text-xs text-gray-600 sm:text-sm lg:text-base">React, Go</div>
                       </div>
                     </div>
 

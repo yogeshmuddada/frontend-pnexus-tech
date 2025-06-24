@@ -1,8 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Calendar, Clock, Users, Trophy, Zap } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Pricing = () => {
   const features = [
@@ -17,11 +17,6 @@ const Pricing = () => {
     "Certificate of completion",
     "GitHub portfolio setup"
   ];
-
-  const handleEnroll = () => {
-    // This would typically open a payment gateway or enrollment form
-    alert("Enrollment form will open here. Contact Durga at durga.chikkala@email.com to reserve your seat!");
-  };
 
   return (
     <section id="pricing" className="py-12 bg-gray-50 sm:py-20">
@@ -125,15 +120,16 @@ const Pricing = () => {
               </div>
 
               <div className="mt-6 text-center sm:mt-8">
-                <Button 
-                  onClick={handleEnroll}
-                  size="lg" 
-                  className="bg-bootcamp-orange hover:bg-bootcamp-orange/90 text-white font-bold py-3 px-6 rounded-full text-sm shadow-2xl hover:shadow-bootcamp-orange/25 transition-all duration-300 transform hover:scale-105 animate-glow w-full sm:w-auto sm:py-4 sm:px-12 sm:text-lg"
-                >
-                  Enroll Now - Limited Seats! 🚀
-                </Button>
+                <Link to="/register">
+                  <Button 
+                    size="lg" 
+                    className="bg-bootcamp-orange hover:bg-bootcamp-orange/90 text-white font-bold py-3 px-6 rounded-full text-sm shadow-2xl hover:shadow-bootcamp-orange/25 transition-all duration-300 transform hover:scale-105 animate-glow w-full sm:w-auto sm:py-4 sm:px-12 sm:text-lg"
+                  >
+                    Register Now - Limited Seats! 🚀
+                  </Button>
+                </Link>
                 <p className="text-xs text-gray-600 mt-3 sm:text-sm sm:mt-4">
-                  🔒 Secure payment • 💳 All major cards accepted • 📱 Instant access
+                  🔒 Secure registration • 💳 Manual payment verification • 📱 Instant confirmation
                 </p>
                 
                 <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg sm:mt-6 sm:p-4">
@@ -153,7 +149,6 @@ const Pricing = () => {
           <div className="flex flex-wrap justify-center items-center gap-3 text-gray-600 text-xs sm:gap-6 sm:text-sm">
             <span>🏦 UPI</span>
             <span>💰 Net Banking</span>
-  
           </div>
         </div>
       </div>

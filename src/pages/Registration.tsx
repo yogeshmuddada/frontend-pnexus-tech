@@ -118,7 +118,7 @@ const Registration = () => {
           email: formData.email,
           phone: formData.phone,
           experience_level: formData.experienceLevel,
-          preferred_batch: formData.preferredBatch || null,
+          preferred_batch: formData.referredBy || null,
           motivation: formData.motivation || null,
           payment_screenshot_url: screenshotPath,
         });
@@ -250,13 +250,13 @@ const Registration = () => {
 
               {/* Preferred Batch */}
               <div>
-                <Label htmlFor="preferredBatch">Preferred Batch</Label>
+                <Label htmlFor="referredBy">Referred By</Label>
                 <Input
-                  id="preferredBatch"
+                  id="referredBy"
                   type="text"
                   value={formData.preferredBatch}
-                  onChange={(e) => handleInputChange('preferredBatch', e.target.value)}
-                  placeholder="e.g., July 2025 batch"
+                  onChange={(e) => handleInputChange('referredBy', e.target.value)}
+                  placeholder="Yogi"
                 />
               </div>
 

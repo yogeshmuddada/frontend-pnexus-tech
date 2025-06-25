@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AuthButton } from "@/components/AuthButton";
 import { ExternalLink, Users, Calendar, Star } from "lucide-react";
 
 const HeroSection = () => {
@@ -19,6 +20,11 @@ const HeroSection = () => {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 pt-8 pb-12 sm:px-6 sm:pt-12 sm:pb-20 lg:px-8 lg:pt-20 lg:pb-28">
+        {/* Header with Login Button */}
+        <div className="flex justify-end mb-4 lg:mb-8">
+          <AuthButton />
+        </div>
+
         {/* Limited Seats Banner */}
         <div className="text-center mb-4 lg:mb-8 animate-fade-in">
           <Badge variant="secondary" className="bg-bootcamp-orange text-white px-3 py-2 text-xs font-semibold animate-glow sm:px-6 sm:py-2 sm:text-sm lg:px-8 lg:py-3 lg:text-base shadow-2xl">

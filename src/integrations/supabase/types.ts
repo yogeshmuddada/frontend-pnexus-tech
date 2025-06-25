@@ -9,6 +9,72 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      course_content: {
+        Row: {
+          created_at: string
+          description: string | null
+          gdrive_video_links: Json | null
+          id: string
+          is_published: boolean | null
+          preparation_materials: string | null
+          session_date: string | null
+          title: string
+          topics: Json | null
+          updated_at: string
+          week_number: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          gdrive_video_links?: Json | null
+          id?: string
+          is_published?: boolean | null
+          preparation_materials?: string | null
+          session_date?: string | null
+          title: string
+          topics?: Json | null
+          updated_at?: string
+          week_number?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          gdrive_video_links?: Json | null
+          id?: string
+          is_published?: boolean | null
+          preparation_materials?: string | null
+          session_date?: string | null
+          title?: string
+          topics?: Json | null
+          updated_at?: string
+          week_number?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       registrations: {
         Row: {
           created_at: string

@@ -59,7 +59,19 @@ const Dashboard = () => {
           variant: 'destructive',
         });
       } else {
-        setCourseContent(contentData || []);
+        // Transform the data to match our interface
+        const transformedContent = contentData?.map(item => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          topics: Array.isArray(item.topics) ? item.topics : [],
+          preparation_materials: item.preparation_materials,
+          gdrive_video_links: Array.isArray(item.gdrive_video_links) ? item.gdrive_video_links : [],
+          week_number: item.week_number,
+          session_date: item.session_date,
+        })) || [];
+        
+        setCourseContent(transformedContent);
       }
 
       // Fetch user profile

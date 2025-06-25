@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 interface FormFieldProps {
   label: string;
   id: string;
-  type?: 'text' | 'email' | 'tel' | 'textarea' | 'select';
+  type?: 'text' | 'email' | 'tel' | 'password' | 'textarea' | 'select';
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;

@@ -64,9 +64,9 @@ const Dashboard = () => {
           id: item.id,
           title: item.title,
           description: item.description,
-          topics: Array.isArray(item.topics) ? item.topics : [],
+          topics: Array.isArray(item.topics) ? item.topics.filter((topic): topic is string => typeof topic === 'string') : [],
           preparation_materials: item.preparation_materials,
-          gdrive_video_links: Array.isArray(item.gdrive_video_links) ? item.gdrive_video_links : [],
+          gdrive_video_links: Array.isArray(item.gdrive_video_links) ? item.gdrive_video_links.filter((link): link is string => typeof link === 'string') : [],
           week_number: item.week_number,
           session_date: item.session_date,
         })) || [];

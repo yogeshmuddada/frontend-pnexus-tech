@@ -20,7 +20,7 @@ export type Database = {
           payment_screenshot_url: string | null
           payment_status: string
           phone: string
-          preferred_batch: string | null
+          referred_by: string | null
           updated_at: string
         }
         Insert: {
@@ -33,7 +33,7 @@ export type Database = {
           payment_screenshot_url?: string | null
           payment_status?: string
           phone: string
-          preferred_batch?: string | null
+          referred_by?: string | null
           updated_at?: string
         }
         Update: {
@@ -46,7 +46,7 @@ export type Database = {
           payment_screenshot_url?: string | null
           payment_status?: string
           phone?: string
-          preferred_batch?: string | null
+          referred_by?: string | null
           updated_at?: string
         }
         Relationships: []

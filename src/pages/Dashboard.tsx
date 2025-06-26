@@ -12,6 +12,7 @@ import { SearchAndFilter } from '@/components/dashboard/SearchAndFilter';
 import { ProgressTracker } from '@/components/dashboard/ProgressTracker';
 import { UserProfileCard } from '@/components/dashboard/UserProfileCard';
 import { QuickActions } from '@/components/dashboard/QuickActions';
+import { useCourseProgress } from '@/hooks/useCourseProgress';
 
 interface CourseContent {
   id: string;
@@ -41,6 +42,7 @@ const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { progress, markSessionComplete } = useCourseProgress();
 
   useEffect(() => {
     if (!user) {
@@ -151,6 +153,14 @@ const Dashboard = () => {
     });
   };
 
+  const handleVideoComplete = (sessionId: string) => {
+    markSessionComplete(sessionId);
+    toast({
+      title: 'Progress Updated',
+      description: 'Session marked as completed!',
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
@@ -161,10 +171,6 @@ const Dashboard = () => {
       </div>
     );
   }
-
-  const totalWeeks = Math.max(...courseContent.map(c => c.week_number || 0));
-  const currentWeek = 2; // This would be calculated based on current date and course schedule
-  const completedWeeks = 1; // This would be tracked based on user progress
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -224,9 +230,9 @@ const Dashboard = () => {
 
         {/* Progress Tracker */}
         <ProgressTracker 
-          totalWeeks={totalWeeks}
-          completedWeeks={completedWeeks}
-          currentWeek={currentWeek}
+          totalWeeks={progress.totalWeeks}
+          completedWeeks={progress.completedWeeks}
+          currentWeek={progress.currentWeek}
         />
 
         {/* Quick Actions */}
@@ -273,6 +279,11 @@ const Dashboard = () => {
                         {content.week_number && (
                           <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
                             Week {content.week_number}
+                          </Badge>
+                        )}
+                        {progress.completedSessions.includes(content.id) && (
+                          <Badge className="bg-green-600 text-white text-xs">
+                            Completed
                           </Badge>
                         )}
                       </div>
@@ -324,17 +335,26 @@ const Dashboard = () => {
                             </h4>
                             <div className="space-y-2">
                               {content.gdrive_video_links.map((link, index) => (
-                                <a
-                                  key={index}
-                                  href={link}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                                >
-                                  <Video className="w-4 h-4" />
-                                  Video {index + 1}
-                                  <ExternalLink className="w-3 h-3" />
-                                </a>
+                                <div key={index} className="flex items-center gap-2">
+                                  <a
+                                    href={link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors flex-1"
+                                  >
+                                    <Video className="w-4 h-4" />
+                                    Video {index + 1}
+                                    <ExternalLink className="w-3 h-3" />
+                                  </a>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleVideoComplete(content.id)}
+                                    className="text-xs"
+                                  >
+                                    Complete
+                                  </Button>
+                                </div>
                               ))}
                             </div>
                           </div>

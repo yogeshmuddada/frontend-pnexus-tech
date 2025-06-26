@@ -44,7 +44,7 @@ const AboutMentor = () => {
                     
                     <h3 className="text-xl font-bold text-white mb-1 sm:text-2xl sm:mb-2 lg:text-3xl lg:mb-3">Durga Chikkala</h3>
                     <p className="text-bootcamp-blue-light text-sm mb-1 sm:text-base sm:mb-2 lg:text-lg lg:mb-3">Software Development Engineer 2</p>
-                    <p className="text-white/80 text-xs mb-4 sm:text-sm sm:mb-6 lg:text-base lg:mb-8">Full Stack Developer</p>
+                    <p className="text-white/80 text-xs mb-4 sm:text-sm sm:mb-6 lg:text-base lg:mb-8">Full Stack Developer / Founder of Foundarly.com</p>
                     
                     <Button 
                       className="bg-bootcamp-orange hover:bg-bootcamp-orange/90 text-white text-xs py-2 px-4 sm:text-sm sm:py-3 sm:px-6 lg:text-base lg:py-3 lg:px-8 shadow-2xl hover:shadow-bootcamp-orange/25 transition-all duration-300 transform hover:scale-105 rounded-full"
@@ -85,7 +85,7 @@ const AboutMentor = () => {
                       </div>
                       <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3 text-center hover:from-green-100 hover:to-green-150 transition-all duration-300 transform hover:scale-105 border border-green-200 sm:p-4 lg:p-6">
                         <Code className="w-5 h-5 text-green-600 mx-auto mb-1 sm:w-6 sm:h-6 sm:mb-2 lg:w-8 lg:h-8 lg:mb-3" />
-                        <div className="text-lg font-bold text-green-600 sm:text-xl lg:text-2xl">50+</div>
+                        <div className="text-lg font-bold text-green-600 sm:text-xl lg:text-2xl">20+</div>
                         <div className="text-xs text-gray-600 sm:text-sm lg:text-base">Projects Built</div>
                       </div>
                       <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 text-center hover:from-purple-100 hover:to-purple-150 transition-all duration-300 transform hover:scale-105 border border-purple-200 sm:p-4 lg:p-6">

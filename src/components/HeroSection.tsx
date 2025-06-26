@@ -48,7 +48,7 @@ const HeroSection = () => {
           <div className="flex flex-col gap-2 mb-6 animate-fade-in px-2 sm:flex-row sm:flex-wrap sm:justify-center sm:items-center sm:gap-4 sm:mb-8 lg:gap-6 lg:mb-10" style={{ animationDelay: '0.4s' }}>
             <div className="flex items-center justify-center gap-2 bg-white/15 backdrop-blur-md rounded-full px-3 py-2 text-xs font-medium border border-white/20 hover:bg-white/20 transition-all duration-300 sm:px-4 sm:py-2 sm:text-sm lg:px-6 lg:py-3 lg:text-base">
               <Users className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-              <span>6+ Years Experience</span>
+              <span>3+ Years Experience</span>
             </div>
             <div className="flex items-center justify-center gap-2 bg-white/15 backdrop-blur-md rounded-full px-3 py-2 text-xs font-medium border border-white/20 hover:bg-white/20 transition-all duration-300 sm:px-4 sm:py-2 sm:text-sm lg:px-6 lg:py-3 lg:text-base">
               <Calendar className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
@@ -58,15 +58,6 @@ const HeroSection = () => {
               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               <span>4.9/5 Rating</span>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-bootcamp-blue transition-all duration-300 text-xs py-2 px-3 sm:text-sm sm:py-2 sm:px-4 lg:text-base lg:py-3 lg:px-6 shadow-lg hover:shadow-2xl transform hover:scale-105"
-              onClick={() => window.open('https://linkedin.com/in/durga-chikkala', '_blank')}
-            >
-              <ExternalLink className="w-3 h-3 mr-1 sm:w-4 sm:h-4 sm:mr-2 lg:w-5 lg:h-5" />
-              LinkedIn Profile
-            </Button>
           </div>
 
           {/* Enhanced CTA Button - Fixed for mobile */}

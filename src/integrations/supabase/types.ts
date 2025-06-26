@@ -75,6 +75,42 @@ export type Database = {
         }
         Relationships: []
       }
+      questions: {
+        Row: {
+          answer: string | null
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          question: string
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          question: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          question?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       registrations: {
         Row: {
           created_at: string
@@ -114,6 +150,131 @@ export type Database = {
           phone?: string
           referred_by?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      scheduled_sessions: {
+        Row: {
+          created_at: string | null
+          current_participants: number | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          max_participants: number | null
+          meeting_link: string | null
+          session_date: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_participants?: number | null
+          meeting_link?: string | null
+          session_date: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_participants?: number | null
+          meeting_link?: string | null
+          session_date?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      session_registrations: {
+        Row: {
+          id: string
+          registered_at: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          registered_at?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          registered_at?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_registrations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "scheduled_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      study_materials: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          is_published: boolean | null
+          title: string
+          updated_at: string | null
+          week_number: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          is_published?: boolean | null
+          title: string
+          updated_at?: string | null
+          week_number?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          is_published?: boolean | null
+          title?: string
+          updated_at?: string | null
+          week_number?: number | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: string
+          user_id?: string | null
         }
         Relationships: []
       }

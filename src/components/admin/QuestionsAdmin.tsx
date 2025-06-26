@@ -47,7 +47,7 @@ export const QuestionsAdmin = ({ onStatsUpdate }: QuestionsAdminProps) => {
         .from('questions')
         .select(`
           *,
-          profiles:user_id (
+          profiles!questions_user_id_fkey (
             full_name,
             email
           )
@@ -160,8 +160,8 @@ export const QuestionsAdmin = ({ onStatsUpdate }: QuestionsAdminProps) => {
                   <TableCell className="font-medium">{question.title}</TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      <div>{question.profiles?.full_name}</div>
-                      <div className="text-gray-500">{question.profiles?.email}</div>
+                      <div>{question.profiles?.full_name || 'Unknown User'}</div>
+                      <div className="text-gray-500">{question.profiles?.email || 'No email'}</div>
                     </div>
                   </TableCell>
                   <TableCell>

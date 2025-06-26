@@ -92,13 +92,19 @@ export const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
 
       if (error) throw error;
 
-      // Update participant count
-      const { error: updateError } = await supabase.rpc('increment_session_participants', {
-        session_id: sessionId
-      });
+      // Update participant count manually
+      const session = sessions.find(s => s.id === sessionId);
+      if (session) {
+        const { error: updateError } = await supabase
+          .from('scheduled_sessions')
+          .update({ 
+            current_participants: (session.current_participants || 0) + 1 
+          })
+          .eq('id', sessionId);
 
-      if (updateError) {
-        console.error('Error updating participant count:', updateError);
+        if (updateError) {
+          console.error('Error updating participant count:', updateError);
+        }
       }
 
       toast({

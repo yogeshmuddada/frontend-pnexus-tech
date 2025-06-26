@@ -7,7 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut, Calendar, BookOpen, Video, ExternalLink, User } from 'lucide-react';
+import { LogOut, Calendar, BookOpen, Video, ExternalLink, User, Menu } from 'lucide-react';
+import { SearchAndFilter } from '@/components/dashboard/SearchAndFilter';
+import { ProgressTracker } from '@/components/dashboard/ProgressTracker';
+import { UserProfileCard } from '@/components/dashboard/UserProfileCard';
+import { QuickActions } from '@/components/dashboard/QuickActions';
 
 interface CourseContent {
   id: string;
@@ -23,12 +27,17 @@ interface CourseContent {
 interface Profile {
   full_name: string;
   email: string;
+  created_at?: string;
 }
 
 const Dashboard = () => {
   const [courseContent, setCourseContent] = useState<CourseContent[]>([]);
+  const [filteredContent, setFilteredContent] = useState<CourseContent[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -38,9 +47,12 @@ const Dashboard = () => {
       navigate('/auth');
       return;
     }
-
     fetchData();
   }, [user, navigate]);
+
+  useEffect(() => {
+    filterContent();
+  }, [courseContent, searchQuery, activeFilter]);
 
   const fetchData = async () => {
     try {
@@ -59,7 +71,6 @@ const Dashboard = () => {
           variant: 'destructive',
         });
       } else {
-        // Transform the data to match our interface
         const transformedContent = contentData?.map(item => ({
           id: item.id,
           title: item.title,
@@ -98,6 +109,39 @@ const Dashboard = () => {
     }
   };
 
+  const filterContent = () => {
+    let filtered = courseContent;
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(content =>
+        content.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        content.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        content.topics.some(topic => topic.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // Apply category filter
+    if (activeFilter !== 'all') {
+      filtered = filtered.filter(content => {
+        switch (activeFilter) {
+          case 'week1':
+            return content.week_number === 1;
+          case 'week2':
+            return content.week_number === 2;
+          case 'upcoming':
+            return content.session_date && new Date(content.session_date) > new Date();
+          case 'completed':
+            return content.session_date && new Date(content.session_date) < new Date();
+          default:
+            return true;
+        }
+      });
+    }
+
+    setFilteredContent(filtered);
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -118,11 +162,42 @@ const Dashboard = () => {
     );
   }
 
+  const totalWeeks = Math.max(...courseContent.map(c => c.week_number || 0));
+  const currentWeek = 2; // This would be calculated based on current date and course schedule
+  const completedWeeks = 1; // This would be tracked based on user progress
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white/80 backdrop-blur-sm border-b border-gray-200 p-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Frontend Pro
+          </h1>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+            <Button
+              onClick={handleSignOut}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-4 lg:py-8">
+        {/* Desktop Header */}
+        <div className="hidden lg:flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Frontend Pro Dashboard
@@ -144,112 +219,142 @@ const Dashboard = () => {
           </Button>
         </div>
 
+        {/* User Profile Card */}
+        <UserProfileCard profile={profile} />
+
+        {/* Progress Tracker */}
+        <ProgressTracker 
+          totalWeeks={totalWeeks}
+          completedWeeks={completedWeeks}
+          currentWeek={currentWeek}
+        />
+
+        {/* Quick Actions */}
+        <QuickActions />
+
+        {/* Search and Filter */}
+        <SearchAndFilter
+          onSearch={setSearchQuery}
+          onFilter={setActiveFilter}
+          activeFilter={activeFilter}
+          searchQuery={searchQuery}
+        />
+
         {/* Course Content */}
-        <div className="grid gap-6">
-          {courseContent.length === 0 ? (
+        <div className="space-y-6">
+          {filteredContent.length === 0 ? (
             <Card className="shadow-lg">
               <CardContent className="p-8 text-center">
                 <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No Content Available</h3>
-                <p className="text-gray-500">Course content will be published here as the bootcamp progresses.</p>
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                  {searchQuery || activeFilter !== 'all' ? 'No matching content found' : 'No Content Available'}
+                </h3>
+                <p className="text-gray-500">
+                  {searchQuery || activeFilter !== 'all' 
+                    ? 'Try adjusting your search or filter criteria.'
+                    : 'Course content will be published here as the bootcamp progresses.'
+                  }
+                </p>
               </CardContent>
             </Card>
           ) : (
-            courseContent.map((content) => (
-              <Card key={content.id} className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-                <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-xl">{content.title}</CardTitle>
-                      {content.description && (
-                        <p className="text-blue-100 mt-2">{content.description}</p>
-                      )}
+            <div className="grid gap-6 lg:grid-cols-2">
+              {filteredContent.map((content) => (
+                <Card key={content.id} className="shadow-lg border-0 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                  <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <CardTitle className="text-xl mb-2">{content.title}</CardTitle>
+                        {content.description && (
+                          <p className="text-blue-100 text-sm">{content.description}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2 ml-4">
+                        {content.week_number && (
+                          <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                            Week {content.week_number}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      {content.week_number && (
-                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                          Week {content.week_number}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {/* Topics */}
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                        <BookOpen className="w-4 h-4" />
-                        Topics to be Covered
-                      </h4>
-                      <ul className="space-y-2">
-                        {content.topics.map((topic, index) => (
-                          <li key={index} className="flex items-start gap-2 text-gray-700">
-                            <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                            {topic}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Session Info */}
-                    <div className="space-y-4">
-                      {content.session_date && (
-                        <div>
-                          <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            Session Date
-                          </h4>
-                          <p className="text-gray-700">
-                            {new Date(content.session_date).toLocaleDateString('en-US', {
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
-                          </p>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-6">
+                      {/* Topics */}
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <BookOpen className="w-4 h-4" />
+                          Topics to be Covered
+                        </h4>
+                        <div className="grid gap-2">
+                          {content.topics.map((topic, index) => (
+                            <div key={index} className="flex items-start gap-2 text-gray-700 p-2 bg-gray-50 rounded-lg">
+                              <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                              <span className="text-sm">{topic}</span>
+                            </div>
+                          ))}
                         </div>
-                      )}
+                      </div>
 
-                      {/* Video Links */}
-                      {content.gdrive_video_links.length > 0 && (
-                        <div>
-                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                            <Video className="w-4 h-4" />
-                            Recorded Videos
-                          </h4>
-                          <div className="space-y-2">
-                            {content.gdrive_video_links.map((link, index) => (
-                              <a
-                                key={index}
-                                href={link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
-                              >
-                                <Video className="w-4 h-4" />
-                                Video {index + 1}
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
-                            ))}
+                      {/* Session Info & Videos */}
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {content.session_date && (
+                          <div>
+                            <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                              <Calendar className="w-4 h-4" />
+                              Session Date
+                            </h4>
+                            <p className="text-gray-700 text-sm">
+                              {new Date(content.session_date).toLocaleDateString('en-US', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </p>
                           </div>
+                        )}
+
+                        {/* Video Links */}
+                        {content.gdrive_video_links.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                              <Video className="w-4 h-4" />
+                              Recorded Videos
+                            </h4>
+                            <div className="space-y-2">
+                              {content.gdrive_video_links.map((link, index) => (
+                                <a
+                                  key={index}
+                                  href={link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                                >
+                                  <Video className="w-4 h-4" />
+                                  Video {index + 1}
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Preparation Materials */}
+                      {content.preparation_materials && (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                          <h4 className="font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                            📚 Preparation Materials
+                          </h4>
+                          <p className="text-amber-700 text-sm">{content.preparation_materials}</p>
                         </div>
                       )}
                     </div>
-                  </div>
-
-                  {/* Preparation Materials */}
-                  {content.preparation_materials && (
-                    <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                      <h4 className="font-semibold text-amber-800 mb-2">
-                        📚 Preparation Materials
-                      </h4>
-                      <p className="text-amber-700">{content.preparation_materials}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </div>
       </div>

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -39,6 +38,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -55,6 +55,12 @@ const Dashboard = () => {
   useEffect(() => {
     filterContent();
   }, [courseContent, searchQuery, activeFilter]);
+
+  useEffect(() => {
+    if (user) {
+      checkAdminRole();
+    }
+  }, [user]);
 
   const fetchData = async () => {
     try {
@@ -108,6 +114,21 @@ const Dashboard = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkAdminRole = async () => {
+    try {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user?.id)
+        .single();
+      
+      setIsAdmin(data?.role === 'admin');
+    } catch (error) {
+      // User doesn't have a role entry, which is fine
+      setIsAdmin(false);
     }
   };
 
@@ -188,6 +209,15 @@ const Dashboard = () => {
             >
               <Menu className="w-5 h-5" />
             </Button>
+            {isAdmin && (
+              <Button
+                onClick={() => navigate('/admin')}
+                variant="outline"
+                size="sm"
+              >
+                Admin
+              </Button>
+            )}
             <Button
               onClick={handleSignOut}
               variant="outline"
@@ -215,14 +245,25 @@ const Dashboard = () => {
               </p>
             )}
           </div>
-          <Button
-            onClick={handleSignOut}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <Button
+                onClick={() => navigate('/admin')}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                Admin Panel
+              </Button>
+            )}
+            <Button
+              onClick={handleSignOut}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         {/* User Profile Card */}

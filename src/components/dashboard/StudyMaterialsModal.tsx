@@ -1,18 +1,20 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Download, ExternalLink, FileText, Video, Code } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { BookOpen, Download, ExternalLink, FileText } from 'lucide-react';
 
 interface StudyMaterial {
   id: string;
   title: string;
-  type: 'video' | 'document' | 'code' | 'link';
-  url: string;
-  description: string;
-  week?: number;
+  description: string | null;
+  file_url: string | null;
+  file_type: string | null;
+  week_number: number | null;
 }
 
 interface StudyMaterialsModalProps {
@@ -21,64 +23,55 @@ interface StudyMaterialsModalProps {
 }
 
 export const StudyMaterialsModal = ({ isOpen, onClose }: StudyMaterialsModalProps) => {
-  const [materials] = useState<StudyMaterial[]>([
-    {
-      id: '1',
-      title: 'HTML Fundamentals Guide',
-      type: 'document',
-      url: '#',
-      description: 'Complete guide to HTML basics and semantic elements',
-      week: 1
-    },
-    {
-      id: '2',
-      title: 'CSS Flexbox Tutorial',
-      type: 'video',
-      url: '#',
-      description: 'Master CSS Flexbox with practical examples',
-      week: 1
-    },
-    {
-      id: '3',
-      title: 'JavaScript ES6+ Features',
-      type: 'code',
-      url: '#',
-      description: 'Modern JavaScript features and syntax',
-      week: 2
-    },
-    {
-      id: '4',
-      title: 'React Documentation',
-      type: 'link',
-      url: 'https://react.dev',
-      description: 'Official React documentation and guides',
-      week: 3
-    }
-  ]);
+  const [materials, setMaterials] = useState<StudyMaterial[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'video': return Video;
-      case 'document': return FileText;
-      case 'code': return Code;
-      case 'link': return ExternalLink;
-      default: return BookOpen;
+  useEffect(() => {
+    if (isOpen) {
+      fetchMaterials();
+    }
+  }, [isOpen]);
+
+  const fetchMaterials = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('study_materials')
+        .select('*')
+        .eq('is_published', true)
+        .order('week_number', { ascending: true });
+
+      if (error) throw error;
+      setMaterials(data || []);
+    } catch (error) {
+      console.error('Error fetching materials:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load study materials',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'video': return 'bg-red-100 text-red-800';
-      case 'document': return 'bg-blue-100 text-blue-800';
-      case 'code': return 'bg-green-100 text-green-800';
-      case 'link': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const getFileIcon = (fileType: string | null) => {
+    switch (fileType) {
+      case 'pdf':
+        return <FileText className="w-5 h-5 text-red-500" />;
+      case 'video':
+        return <BookOpen className="w-5 h-5 text-blue-500" />;
+      case 'link':
+        return <ExternalLink className="w-5 h-5 text-green-500" />;
+      default:
+        return <Download className="w-5 h-5 text-gray-500" />;
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BookOpen className="w-5 h-5" />
@@ -86,54 +79,58 @@ export const StudyMaterialsModal = ({ isOpen, onClose }: StudyMaterialsModalProp
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-4 mt-4">
-          {materials.map((material) => {
-            const Icon = getIcon(material.type);
-            return (
-              <Card key={material.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-5 h-5 text-gray-600" />
-                      <div>
-                        <CardTitle className="text-lg">{material.title}</CardTitle>
-                        <p className="text-sm text-gray-600 mt-1">{material.description}</p>
+        <div className="overflow-y-auto max-h-[60vh] space-y-4">
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p>Loading study materials...</p>
+            </div>
+          ) : materials.length === 0 ? (
+            <div className="text-center py-8">
+              <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">No Materials Available</h3>
+              <p className="text-gray-500">Study materials will be published here as the course progresses.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {materials.map((material) => (
+                <Card key={material.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        {getFileIcon(material.file_type)}
+                        {material.title}
+                      </CardTitle>
+                      <div className="flex gap-2">
+                        {material.week_number && (
+                          <Badge variant="outline">Week {material.week_number}</Badge>
+                        )}
+                        <Badge variant="secondary">{material.file_type?.toUpperCase()}</Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {material.week && (
-                        <Badge variant="outline">Week {material.week}</Badge>
-                      )}
-                      <Badge className={getTypeColor(material.type)}>
-                        {material.type}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(material.url, '_blank')}
-                      className="flex items-center gap-2"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      Open
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      Download
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                  </CardHeader>
+                  <CardContent>
+                    {material.description && (
+                      <p className="text-gray-600 mb-4">{material.description}</p>
+                    )}
+                    {material.file_url && (
+                      <Button asChild className="w-full">
+                        <a
+                          href={material.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          Access Material
+                        </a>
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

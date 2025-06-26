@@ -1,25 +1,24 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Send, Clock, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { MessageCircle, Send, HelpCircle } from 'lucide-react';
 
 interface Question {
   id: string;
-  subject: string;
-  category: string;
+  title: string;
   question: string;
-  answer?: string;
-  status: 'pending' | 'answered';
-  createdAt: string;
-  answeredAt?: string;
+  answer: string | null;
+  status: string;
+  is_public: boolean;
+  created_at: string;
 }
 
 interface QuestionModalProps {
@@ -28,70 +27,101 @@ interface QuestionModalProps {
 }
 
 export const QuestionModal = ({ isOpen, onClose }: QuestionModalProps) => {
-  const [activeTab, setActiveTab] = useState<'ask' | 'history'>('ask');
-  const [formData, setFormData] = useState({
-    subject: '',
-    category: '',
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [newQuestion, setNewQuestion] = useState({
+    title: '',
     question: ''
   });
-  const [questions] = useState<Question[]>([
-    {
-      id: '1',
-      subject: 'CSS Flexbox Issue',
-      category: 'CSS',
-      question: 'I\'m having trouble centering items with flexbox. Can you help?',
-      answer: 'To center items with flexbox, use justify-content: center for horizontal centering and align-items: center for vertical centering.',
-      status: 'answered',
-      createdAt: '2025-01-10',
-      answeredAt: '2025-01-10'
-    },
-    {
-      id: '2',
-      subject: 'JavaScript Array Methods',
-      category: 'JavaScript',
-      question: 'What\'s the difference between map() and forEach()?',
-      status: 'pending',
-      createdAt: '2025-01-12'
-    }
-  ]);
-
+  const { user } = useAuth();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.subject || !formData.category || !formData.question) {
+  useEffect(() => {
+    if (isOpen && user) {
+      fetchQuestions();
+    }
+  }, [isOpen, user]);
+
+  const fetchQuestions = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('questions')
+        .select('*')
+        .or(`user_id.eq.${user?.id},is_public.eq.true`)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setQuestions(data || []);
+    } catch (error) {
+      console.error('Error fetching questions:', error);
       toast({
         title: 'Error',
-        description: 'Please fill in all fields',
-        variant: 'destructive'
+        description: 'Failed to load questions',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!user || !newQuestion.title.trim() || !newQuestion.question.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please fill in both title and question',
+        variant: 'destructive',
       });
       return;
     }
 
-    // In a real app, this would send the question to your backend
-    toast({
-      title: 'Question Submitted',
-      description: 'Your question has been sent to the mentor. You\'ll receive an answer within 24 hours.',
-    });
+    try {
+      setSubmitting(true);
+      const { error } = await supabase
+        .from('questions')
+        .insert({
+          user_id: user.id,
+          title: newQuestion.title.trim(),
+          question: newQuestion.question.trim(),
+          status: 'pending'
+        });
 
-    setFormData({ subject: '', category: '', question: '' });
-    setActiveTab('history');
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Your question has been submitted successfully!',
+      });
+
+      setNewQuestion({ title: '', question: '' });
+      fetchQuestions();
+    } catch (error) {
+      console.error('Error submitting question:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to submit question',
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const categories = [
-    'HTML',
-    'CSS',
-    'JavaScript',
-    'React',
-    'General',
-    'Project Help',
-    'Career Guidance'
-  ];
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'answered':
+        return 'default';
+      case 'pending':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MessageCircle className="w-5 h-5" />
@@ -99,115 +129,92 @@ export const QuestionModal = ({ isOpen, onClose }: QuestionModalProps) => {
           </DialogTitle>
         </DialogHeader>
         
-        <div className="mt-4">
-          <div className="flex gap-2 mb-6">
-            <Button
-              variant={activeTab === 'ask' ? 'default' : 'outline'}
-              onClick={() => setActiveTab('ask')}
-              className="flex items-center gap-2"
-            >
-              <Send className="w-4 h-4" />
-              Ask Question
-            </Button>
-            <Button
-              variant={activeTab === 'history' ? 'default' : 'outline'}
-              onClick={() => setActiveTab('history')}
-              className="flex items-center gap-2"
-            >
-              <Clock className="w-4 h-4" />
-              Question History
-            </Button>
-          </div>
-
-          {activeTab === 'ask' ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="subject">Subject</Label>
-                <Input
-                  id="subject"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="Brief summary of your question"
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) => setFormData({ ...formData, category: value })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="question">Your Question</Label>
-                <Textarea
-                  id="question"
-                  value={formData.question}
-                  onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                  placeholder="Describe your question in detail. Include any code snippets or specific issues you're facing."
-                  rows={6}
-                  className="mt-1"
-                />
-              </div>
-
-              <Button type="submit" className="w-full">
-                <Send className="w-4 h-4 mr-2" />
-                Submit Question
+        <div className="space-y-6">
+          {/* Submit new question form */}
+          <Card className="border-2 border-dashed border-gray-300">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <HelpCircle className="w-5 h-5" />
+                Ask Your Question
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                placeholder="Question title (brief summary)"
+                value={newQuestion.title}
+                onChange={(e) => setNewQuestion({ ...newQuestion, title: e.target.value })}
+              />
+              <Textarea
+                placeholder="Describe your question in detail..."
+                value={newQuestion.question}
+                onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })}
+                rows={4}
+              />
+              <Button 
+                onClick={handleSubmit} 
+                disabled={submitting}
+                className="w-full flex items-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                {submitting ? 'Submitting...' : 'Submit Question'}
               </Button>
-            </form>
-          ) : (
-            <div className="space-y-4">
-              {questions.map((question) => (
-                <Card key={question.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{question.subject}</CardTitle>
-                        <p className="text-sm text-gray-600 mt-1">{question.question}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{question.category}</Badge>
-                        <Badge className={question.status === 'answered' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
-                          {question.status === 'answered' ? (
-                            <>
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                              Answered
-                            </>
-                          ) : (
-                            <>
-                              <Clock className="w-3 h-3 mr-1" />
-                              Pending
-                            </>
+            </CardContent>
+          </Card>
+
+          {/* Previous questions */}
+          <div className="overflow-y-auto max-h-[40vh] space-y-4">
+            <h3 className="text-lg font-semibold">Previous Questions</h3>
+            
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p>Loading questions...</p>
+              </div>
+            ) : questions.length === 0 ? (
+              <div className="text-center py-8">
+                <MessageCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-600 mb-2">No Questions Yet</h3>
+                <p className="text-gray-500">Ask your first question above!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {questions.map((question) => (
+                  <Card key={question.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-lg">{question.title}</CardTitle>
+                        <div className="flex gap-2">
+                          <Badge variant={getStatusColor(question.status)}>
+                            {question.status}
+                          </Badge>
+                          {question.is_public && (
+                            <Badge variant="outline">Public</Badge>
                           )}
-                        </Badge>
+                        </div>
                       </div>
-                    </div>
-                  </CardHeader>
-                  {question.answer && (
-                    <CardContent className="pt-0">
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <h4 className="font-medium text-blue-900 mb-2">Mentor's Answer:</h4>
-                        <p className="text-blue-800 text-sm">{question.answer}</p>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-2">Question:</h4>
+                        <p className="text-gray-600">{question.question}</p>
+                      </div>
+                      
+                      {question.answer && (
+                        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                          <h4 className="font-medium text-green-800 mb-2">Answer:</h4>
+                          <p className="text-green-700">{question.answer}</p>
+                        </div>
+                      )}
+                      
+                      <div className="text-xs text-gray-500">
+                        Asked on {new Date(question.created_at).toLocaleDateString()}
                       </div>
                     </CardContent>
-                  )}
-                </Card>
-              ))}
-            </div>
-          )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

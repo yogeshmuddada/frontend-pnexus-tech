@@ -1,21 +1,23 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin, Users, Video } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { Calendar, Clock, Users, ExternalLink, UserPlus } from 'lucide-react';
 
-interface ScheduleEvent {
+interface ScheduledSession {
   id: string;
   title: string;
-  date: string;
-  time: string;
-  type: 'live' | 'recorded' | 'assignment';
-  location: string;
-  instructor: string;
-  description: string;
-  status: 'upcoming' | 'ongoing' | 'completed';
+  description: string | null;
+  session_date: string;
+  meeting_link: string | null;
+  max_participants: number | null;
+  current_participants: number;
+  is_registered?: boolean;
 }
 
 interface ScheduleModalProps {
@@ -24,130 +26,192 @@ interface ScheduleModalProps {
 }
 
 export const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
-  const [events] = useState<ScheduleEvent[]>([
-    {
-      id: '1',
-      title: 'HTML & CSS Fundamentals',
-      date: '2025-01-15',
-      time: '19:00',
-      type: 'live',
-      location: 'Zoom Room 1',
-      instructor: 'John Doe',
-      description: 'Introduction to HTML structure and CSS styling',
-      status: 'upcoming'
-    },
-    {
-      id: '2',
-      title: 'JavaScript Basics',
-      date: '2025-01-17',
-      time: '19:00',
-      type: 'live',
-      location: 'Zoom Room 1',
-      instructor: 'John Doe',
-      description: 'Variables, functions, and control structures',
-      status: 'upcoming'
-    },
-    {
-      id: '3',
-      title: 'Project Assignment 1',
-      date: '2025-01-20',
-      time: '23:59',
-      type: 'assignment',
-      location: 'Online Submission',
-      instructor: 'John Doe',
-      description: 'Build a responsive landing page',
-      status: 'upcoming'
-    }
-  ]);
+  const [sessions, setSessions] = useState<ScheduledSession[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'upcoming': return 'bg-blue-100 text-blue-800';
-      case 'ongoing': return 'bg-green-100 text-green-800';
-      case 'completed': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+  useEffect(() => {
+    if (isOpen && user) {
+      fetchSessions();
+    }
+  }, [isOpen, user]);
+
+  const fetchSessions = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch sessions with registration status
+      const { data: sessionsData, error: sessionsError } = await supabase
+        .from('scheduled_sessions')
+        .select('*')
+        .eq('is_active', true)
+        .gte('session_date', new Date().toISOString())
+        .order('session_date', { ascending: true });
+
+      if (sessionsError) throw sessionsError;
+
+      // Check which sessions the user is registered for
+      const { data: registrationsData, error: registrationsError } = await supabase
+        .from('session_registrations')
+        .select('session_id')
+        .eq('user_id', user?.id);
+
+      if (registrationsError) throw registrationsError;
+
+      const registeredSessionIds = new Set(registrationsData?.map(r => r.session_id) || []);
+
+      const sessionsWithRegistration = sessionsData?.map(session => ({
+        ...session,
+        is_registered: registeredSessionIds.has(session.id)
+      })) || [];
+
+      setSessions(sessionsWithRegistration);
+    } catch (error) {
+      console.error('Error fetching sessions:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load scheduled sessions',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'live': return Video;
-      case 'recorded': return Video;
-      case 'assignment': return Clock;
-      default: return Calendar;
-    }
-  };
+  const handleRegister = async (sessionId: string) => {
+    if (!user) return;
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    try {
+      const { error } = await supabase
+        .from('session_registrations')
+        .insert({
+          session_id: sessionId,
+          user_id: user.id
+        });
+
+      if (error) throw error;
+
+      // Update participant count
+      const { error: updateError } = await supabase.rpc('increment_session_participants', {
+        session_id: sessionId
+      });
+
+      if (updateError) {
+        console.error('Error updating participant count:', updateError);
+      }
+
+      toast({
+        title: 'Success',
+        description: 'Successfully registered for the session!',
+      });
+
+      fetchSessions(); // Refresh the list
+    } catch (error: any) {
+      console.error('Error registering for session:', error);
+      if (error.code === '23505') {
+        toast({
+          title: 'Already Registered',
+          description: 'You are already registered for this session.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to register for session',
+          variant: 'destructive',
+        });
+      }
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5" />
-            Course Schedule
+            Upcoming Sessions
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-4 mt-4">
-          {events.map((event) => {
-            const TypeIcon = getTypeIcon(event.type);
-            return (
-              <Card key={event.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <TypeIcon className="w-5 h-5 text-gray-600" />
-                      <div>
-                        <CardTitle className="text-lg">{event.title}</CardTitle>
-                        <p className="text-sm text-gray-600 mt-1">{event.description}</p>
+        <div className="overflow-y-auto max-h-[60vh] space-y-4">
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p>Loading sessions...</p>
+            </div>
+          ) : sessions.length === 0 ? (
+            <div className="text-center py-8">
+              <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">No Upcoming Sessions</h3>
+              <p className="text-gray-500">New sessions will be scheduled and appear here.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {sessions.map((session) => (
+                <Card key={session.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <CardTitle className="text-lg">{session.title}</CardTitle>
+                      <div className="flex gap-2">
+                        {session.is_registered && (
+                          <Badge variant="default">Registered</Badge>
+                        )}
+                        <Badge variant="outline">
+                          <Users className="w-3 h-3 mr-1" />
+                          {session.current_participants}/{session.max_participants || '∞'}
+                        </Badge>
                       </div>
                     </div>
-                    <Badge className={getStatusColor(event.status)}>
-                      {event.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-500" />
-                      <span>{formatDate(event.date)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-gray-500" />
-                      <span>{event.time}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-gray-500" />
-                      <span>{event.location}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Users className="w-4 h-4" />
-                      <span>Instructor: {event.instructor}</span>
-                    </div>
-                    
-                    {event.status === 'upcoming' && (
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                        Join Session
-                      </Button>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {session.description && (
+                      <p className="text-gray-600">{session.description}</p>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                    
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        {new Date(session.session_date).toLocaleDateString()}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        {new Date(session.session_date).toLocaleTimeString()}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      {!session.is_registered ? (
+                        <Button 
+                          onClick={() => handleRegister(session.id)}
+                          className="flex items-center gap-2"
+                          disabled={session.max_participants ? session.current_participants >= session.max_participants : false}
+                        >
+                          <UserPlus className="w-4 h-4" />
+                          Register
+                        </Button>
+                      ) : (
+                        session.meeting_link && (
+                          <Button asChild>
+                            <a
+                              href={session.meeting_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              Join Meeting
+                            </a>
+                          </Button>
+                        )
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

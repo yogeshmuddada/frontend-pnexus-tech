@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +21,7 @@ interface Question {
   profiles?: {
     full_name: string;
     email: string;
-  };
+  } | null;
 }
 
 interface QuestionsAdminProps {
@@ -47,7 +46,7 @@ export const QuestionsAdmin = ({ onStatsUpdate }: QuestionsAdminProps) => {
         .from('questions')
         .select(`
           *,
-          profiles!questions_user_id_fkey (
+          profiles (
             full_name,
             email
           )

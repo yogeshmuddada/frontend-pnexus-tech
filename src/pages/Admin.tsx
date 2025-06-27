@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Calendar, MessageCircle, Users, Plus, ArrowLeft } from 'lucide-react';
+import { BookOpen, Calendar, MessageCircle, Users, Plus, ArrowLeft, Menu, X } from 'lucide-react';
 import { StudyMaterialsAdmin } from '@/components/admin/StudyMaterialsAdmin';
 import { QuestionsAdmin } from '@/components/admin/QuestionsAdmin';
 import { SessionsAdmin } from '@/components/admin/SessionsAdmin';
@@ -17,6 +17,7 @@ import { UsersAdmin } from '@/components/admin/UsersAdmin';
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [stats, setStats] = useState({
     materials: 0,
     questions: 0,
@@ -96,7 +97,7 @@ const Admin = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Verifying admin access...</p>
@@ -111,9 +112,36 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/dashboard')}
+              className="p-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Admin Panel
+            </h1>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-4 lg:py-8">
+        {/* Desktop Header */}
+        <div className="hidden lg:flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
@@ -132,79 +160,118 @@ const Admin = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* Stats Cards - Responsive Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-6 lg:mb-8">
           <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-6">
+            <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Study Materials</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.materials}</p>
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Materials</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.materials}</p>
                 </div>
-                <BookOpen className="w-8 h-8 text-blue-500" />
+                <BookOpen className="w-6 h-6 lg:w-8 lg:h-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-6">
+            <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Questions</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.questions}</p>
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Questions</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.questions}</p>
                 </div>
-                <MessageCircle className="w-8 h-8 text-green-500" />
+                <MessageCircle className="w-6 h-6 lg:w-8 lg:h-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-6">
+            <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Sessions</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.sessions}</p>
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Sessions</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.sessions}</p>
                 </div>
-                <Calendar className="w-8 h-8 text-purple-500" />
+                <Calendar className="w-6 h-6 lg:w-8 lg:h-8 text-purple-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-6">
+            <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Users</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.users}</p>
+                  <p className="text-xs lg:text-sm font-medium text-gray-600">Users</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.users}</p>
                 </div>
-                <Users className="w-8 h-8 text-orange-500" />
+                <Users className="w-6 h-6 lg:w-8 lg:h-8 text-orange-500" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Admin Tabs */}
+        {/* Admin Tabs - Mobile Optimized */}
         <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardContent className="p-6">
+          <CardContent className="p-3 lg:p-6">
             <Tabs defaultValue="materials" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="materials" className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4" />
-                  Study Materials
-                </TabsTrigger>
-                <TabsTrigger value="questions" className="flex items-center gap-2">
-                  <MessageCircle className="w-4 h-4" />
-                  Questions
-                </TabsTrigger>
-                <TabsTrigger value="sessions" className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Sessions
-                </TabsTrigger>
-                <TabsTrigger value="users" className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Users
-                </TabsTrigger>
-              </TabsList>
+              {/* Mobile Tab Navigation */}
+              <div className="lg:hidden mb-4">
+                <TabsList className="grid w-full grid-cols-2 gap-1 h-auto p-1">
+                  <TabsTrigger 
+                    value="materials" 
+                    className="flex flex-col items-center gap-1 p-2 text-xs data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    Materials
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="questions" 
+                    className="flex flex-col items-center gap-1 p-2 text-xs data-[state=active]:bg-green-500 data-[state=active]:text-white"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Questions
+                  </TabsTrigger>
+                </TabsList>
+                <TabsList className="grid w-full grid-cols-2 gap-1 h-auto p-1 mt-2">
+                  <TabsTrigger 
+                    value="sessions" 
+                    className="flex flex-col items-center gap-1 p-2 text-xs data-[state=active]:bg-purple-500 data-[state=active]:text-white"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Sessions
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="users" 
+                    className="flex flex-col items-center gap-1 p-2 text-xs data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+                  >
+                    <Users className="w-4 h-4" />
+                    Users
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+
+              {/* Desktop Tab Navigation */}
+              <div className="hidden lg:block">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="materials" className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4" />
+                    Study Materials
+                  </TabsTrigger>
+                  <TabsTrigger value="questions" className="flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4" />
+                    Questions
+                  </TabsTrigger>
+                  <TabsTrigger value="sessions" className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Sessions
+                  </TabsTrigger>
+                  <TabsTrigger value="users" className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    Users
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
               <TabsContent value="materials" className="mt-6">
                 <StudyMaterialsAdmin onStatsUpdate={fetchStats} />

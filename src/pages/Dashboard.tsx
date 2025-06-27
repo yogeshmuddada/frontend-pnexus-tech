@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut, Calendar, BookOpen, Video, ExternalLink, User, Menu } from 'lucide-react';
+import { LogOut, Calendar, BookOpen, Video, ExternalLink, User, Menu, X } from 'lucide-react';
 import { SearchAndFilter } from '@/components/dashboard/SearchAndFilter';
 import { ProgressTracker } from '@/components/dashboard/ProgressTracker';
 import { UserProfileCard } from '@/components/dashboard/UserProfileCard';
@@ -184,7 +185,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your dashboard...</p>
@@ -195,40 +196,66 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Mobile Header */}
-      <div className="lg:hidden bg-white/80 backdrop-blur-sm border-b border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Frontend Pro
-          </h1>
+      {/* Enhanced Mobile Header */}
+      <div className="lg:hidden bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Frontend Pro
+            </h1>
+            {profile && (
+              <div className="hidden sm:block">
+                <p className="text-xs text-gray-600 flex items-center gap-1">
+                  <User className="w-3 h-3" />
+                  {profile.full_name}
+                </p>
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
             {isAdmin && (
               <Button
                 onClick={() => navigate('/admin')}
                 variant="outline"
                 size="sm"
+                className="text-xs px-2 py-1"
               >
                 Admin
               </Button>
             )}
             <Button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              variant="ghost"
+              size="sm"
+              className="p-2"
+            >
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Menu Overlay */}
+        {sidebarOpen && (
+          <div className="absolute top-full left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-4 space-y-3">
+            {profile && (
+              <div className="sm:hidden">
+                <p className="text-sm text-gray-600 flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Welcome, {profile.full_name}!
+                </p>
+              </div>
+            )}
+            <Button
               onClick={handleSignOut}
               variant="outline"
               size="sm"
-              className="flex items-center gap-1"
+              className="w-full flex items-center gap-2 justify-center"
             >
               <LogOut className="w-4 h-4" />
               Sign Out
             </Button>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="container mx-auto px-4 py-4 lg:py-8">
@@ -266,37 +293,40 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* User Profile Card */}
-        <UserProfileCard profile={profile} />
+        {/* Mobile-First Components */}
+        <div className="space-y-4 lg:space-y-6">
+          {/* User Profile Card - Mobile Optimized */}
+          <UserProfileCard profile={profile} />
 
-        {/* Progress Tracker */}
-        <ProgressTracker 
-          totalWeeks={progress.totalWeeks}
-          completedWeeks={progress.completedWeeks}
-          currentWeek={progress.currentWeek}
-        />
+          {/* Progress Tracker - Mobile Optimized */}
+          <ProgressTracker 
+            totalWeeks={progress.totalWeeks}
+            completedWeeks={progress.completedWeeks}
+            currentWeek={progress.currentWeek}
+          />
 
-        {/* Quick Actions */}
-        <QuickActions />
+          {/* Quick Actions - Mobile Optimized */}
+          <QuickActions />
 
-        {/* Search and Filter */}
-        <SearchAndFilter
-          onSearch={setSearchQuery}
-          onFilter={setActiveFilter}
-          activeFilter={activeFilter}
-          searchQuery={searchQuery}
-        />
+          {/* Search and Filter - Mobile Optimized */}
+          <SearchAndFilter
+            onSearch={setSearchQuery}
+            onFilter={setActiveFilter}
+            activeFilter={activeFilter}
+            searchQuery={searchQuery}
+          />
+        </div>
 
-        {/* Course Content */}
-        <div className="space-y-6">
+        {/* Course Content - Enhanced Mobile Layout */}
+        <div className="mt-6 space-y-4 lg:space-y-6">
           {filteredContent.length === 0 ? (
             <Card className="shadow-lg">
-              <CardContent className="p-8 text-center">
-                <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              <CardContent className="p-6 lg:p-8 text-center">
+                <BookOpen className="w-12 h-12 lg:w-16 lg:h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg lg:text-xl font-semibold text-gray-600 mb-2">
                   {searchQuery || activeFilter !== 'all' ? 'No matching content found' : 'No Content Available'}
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-sm lg:text-base text-gray-500">
                   {searchQuery || activeFilter !== 'all' 
                     ? 'Try adjusting your search or filter criteria.'
                     : 'Course content will be published here as the bootcamp progresses.'
@@ -305,58 +335,60 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid gap-4 lg:gap-6 lg:grid-cols-2">
               {filteredContent.map((content) => (
                 <Card key={content.id} className="shadow-lg border-0 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                  <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <CardTitle className="text-xl mb-2">{content.title}</CardTitle>
+                  <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg p-4 lg:p-6">
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-lg lg:text-xl mb-2 break-words">{content.title}</CardTitle>
                         {content.description && (
-                          <p className="text-blue-100 text-sm">{content.description}</p>
+                          <p className="text-blue-100 text-sm lg:text-base break-words">{content.description}</p>
                         )}
                       </div>
-                      <div className="flex gap-2 ml-4">
+                      <div className="flex flex-col gap-2 flex-shrink-0">
                         {content.week_number && (
-                          <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                          <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs whitespace-nowrap">
                             Week {content.week_number}
                           </Badge>
                         )}
                         {progress.completedSessions.includes(content.id) && (
-                          <Badge className="bg-green-600 text-white text-xs">
+                          <Badge className="bg-green-600 text-white text-xs whitespace-nowrap">
                             Completed
                           </Badge>
                         )}
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="space-y-6">
-                      {/* Topics */}
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                          <BookOpen className="w-4 h-4" />
-                          Topics to be Covered
-                        </h4>
-                        <div className="grid gap-2">
-                          {content.topics.map((topic, index) => (
-                            <div key={index} className="flex items-start gap-2 text-gray-700 p-2 bg-gray-50 rounded-lg">
-                              <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
-                              <span className="text-sm">{topic}</span>
-                            </div>
-                          ))}
+                  <CardContent className="p-4 lg:p-6">
+                    <div className="space-y-4 lg:space-y-6">
+                      {/* Topics - Mobile Optimized */}
+                      {content.topics.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-sm lg:text-base">
+                            <BookOpen className="w-4 h-4" />
+                            Topics Covered
+                          </h4>
+                          <div className="space-y-2">
+                            {content.topics.map((topic, index) => (
+                              <div key={index} className="flex items-start gap-2 text-gray-700 p-2 lg:p-3 bg-gray-50 rounded-lg">
+                                <span className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 lg:mt-2 flex-shrink-0"></span>
+                                <span className="text-sm lg:text-base break-words">{topic}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
-                      {/* Session Info & Videos */}
-                      <div className="grid md:grid-cols-2 gap-4">
+                      {/* Session Info & Videos - Responsive Layout */}
+                      <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4">
                         {content.session_date && (
                           <div>
-                            <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2 text-sm lg:text-base">
                               <Calendar className="w-4 h-4" />
                               Session Date
                             </h4>
-                            <p className="text-gray-700 text-sm">
+                            <p className="text-gray-700 text-sm lg:text-base">
                               {new Date(content.session_date).toLocaleDateString('en-US', {
                                 weekday: 'long',
                                 year: 'numeric',
@@ -367,33 +399,33 @@ const Dashboard = () => {
                           </div>
                         )}
 
-                        {/* Video Links */}
+                        {/* Video Links - Mobile Optimized */}
                         {content.gdrive_video_links.length > 0 && (
-                          <div>
-                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <div className="lg:col-span-1">
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-sm lg:text-base">
                               <Video className="w-4 h-4" />
-                              Recorded Videos
+                              Videos ({content.gdrive_video_links.length})
                             </h4>
                             <div className="space-y-2">
                               {content.gdrive_video_links.map((link, index) => (
-                                <div key={index} className="flex items-center gap-2">
+                                <div key={index} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                                   <a
                                     href={link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors flex-1"
+                                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm p-2 lg:p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors flex-1 min-w-0"
                                   >
-                                    <Video className="w-4 h-4" />
-                                    Video {index + 1}
-                                    <ExternalLink className="w-3 h-3" />
+                                    <Video className="w-4 h-4 flex-shrink-0" />
+                                    <span className="truncate">Video {index + 1}</span>
+                                    <ExternalLink className="w-3 h-3 flex-shrink-0" />
                                   </a>
                                   <Button
                                     size="sm"
                                     variant="outline"
                                     onClick={() => handleVideoComplete(content.id)}
-                                    className="text-xs"
+                                    className="text-xs px-3 py-1 whitespace-nowrap"
                                   >
-                                    Complete
+                                    Mark Complete
                                   </Button>
                                 </div>
                               ))}
@@ -402,13 +434,13 @@ const Dashboard = () => {
                         )}
                       </div>
 
-                      {/* Preparation Materials */}
+                      {/* Preparation Materials - Mobile Optimized */}
                       {content.preparation_materials && (
-                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                          <h4 className="font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                        <div className="p-3 lg:p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                          <h4 className="font-semibold text-amber-800 mb-2 flex items-center gap-2 text-sm lg:text-base">
                             📚 Preparation Materials
                           </h4>
-                          <p className="text-amber-700 text-sm">{content.preparation_materials}</p>
+                          <p className="text-amber-700 text-sm lg:text-base break-words">{content.preparation_materials}</p>
                         </div>
                       )}
                     </div>

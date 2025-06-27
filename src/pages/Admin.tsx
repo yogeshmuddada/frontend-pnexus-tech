@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,18 +23,22 @@ const Admin = () => {
     sessions: 0,
     users: 0
   });
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
+    // Wait for auth to finish loading before redirecting
+    if (!authLoading && !user) {
       navigate('/auth');
       return;
     }
-    checkAdminRole();
-    fetchStats();
-  }, [user, navigate]);
+    
+    if (user) {
+      checkAdminRole();
+      fetchStats();
+    }
+  }, [user, navigate, authLoading]);
 
   const checkAdminRole = async () => {
     try {
@@ -95,7 +98,8 @@ const Admin = () => {
     }
   };
 
-  if (loading) {
+  // Show loading while auth is loading or admin check is loading
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
         <div className="text-center">

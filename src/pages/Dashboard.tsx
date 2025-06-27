@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -40,18 +39,22 @@ const Dashboard = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { progress, markSessionComplete } = useCourseProgress();
 
   useEffect(() => {
-    if (!user) {
+    // Wait for auth to finish loading before redirecting
+    if (!authLoading && !user) {
       navigate('/auth');
       return;
     }
-    fetchData();
-  }, [user, navigate]);
+    
+    if (user) {
+      fetchData();
+    }
+  }, [user, navigate, authLoading]);
 
   useEffect(() => {
     filterContent();
@@ -183,7 +186,8 @@ const Dashboard = () => {
     });
   };
 
-  if (loading) {
+  // Show loading while auth is loading or data is loading
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
         <div className="text-center">

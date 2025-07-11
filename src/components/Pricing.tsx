@@ -74,7 +74,7 @@ const Pricing = () => {
                     <div className="space-y-2 text-gray-700 text-sm sm:space-y-3 sm:text-base">
                       <div className="flex justify-between">
                         <span>Start Date:</span>
-                        <span className="font-semibold">July 10, 2025</span>
+                        <span className="font-semibold">July 15, 2025</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Duration:</span>

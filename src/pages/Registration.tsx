@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,7 +59,9 @@ const Registration = () => {
     }
 
     if (step === 3) {
-      if (!paymentFile) newErrors.paymentFile = "Payment screenshot is required";
+      if (formData.referredBy?.toLowerCase() !== "foundarly" && !paymentFile) {
+        newErrors.paymentFile = "Payment screenshot is required";
+      }
     }
 
     setErrors(newErrors);
@@ -88,7 +89,7 @@ const Registration = () => {
         });
         return;
       }
-      
+
       if (file.size > 5 * 1024 * 1024) {
         toast({
           title: "File too large",
@@ -97,7 +98,7 @@ const Registration = () => {
         });
         return;
       }
-      
+
       setPaymentFile(file);
       if (errors.paymentFile) {
         setErrors(prev => ({ ...prev, paymentFile: "" }));
@@ -108,7 +109,7 @@ const Registration = () => {
   const uploadPaymentScreenshot = async (file: File): Promise<string | null> => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    
+
     const { data, error } = await supabase.storage
       .from('payment-screenshots')
       .upload(fileName, file);
@@ -123,12 +124,17 @@ const Registration = () => {
 
   const handleSubmit = async () => {
     if (!validateStep(3)) return;
-    
+
     setIsLoading(true);
 
     try {
-      const screenshotPath = await uploadPaymentScreenshot(paymentFile!);
-      if (!screenshotPath) {
+      const isReferredByFoundarly = formData.referredBy?.toLowerCase() === "foundarly";
+
+      const screenshotPath = isReferredByFoundarly
+        ? null
+        : await uploadPaymentScreenshot(paymentFile!);
+
+      if (!isReferredByFoundarly && !screenshotPath) {
         toast({
           title: "Upload failed",
           description: "Failed to upload payment screenshot. Please try again.",
@@ -207,6 +213,8 @@ const Registration = () => {
       </div>
     );
   }
+
+  const isReferredByFoundarly = formData.referredBy?.toLowerCase() === "foundarly";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
@@ -300,13 +308,12 @@ const Registration = () => {
             {currentStep === 3 && (
               <div className="space-y-8">
                 <PaymentInstructions />
-                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Upload Payment Screenshot *
+                    Upload Payment Screenshot {isReferredByFoundarly ? "(Not required)" : "*"}
                   </label>
                   <div className="mt-2">
-                    <label htmlFor="paymentScreenshot" className="cursor-pointer">
+                    <label htmlFor="paymentScreenshot" className={isReferredByFoundarly ? "cursor-not-allowed opacity-50" : "cursor-pointer"}>
                       <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
                         paymentFile 
                           ? 'border-green-300 bg-green-50' 
@@ -330,6 +337,7 @@ const Registration = () => {
                       type="file"
                       accept="image/*"
                       className="hidden"
+                      disabled={isReferredByFoundarly}
                       onChange={handleFileChange}
                     />
                     {errors.paymentFile && (
